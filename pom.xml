@@ -27,7 +27,6 @@
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>5.12.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-
     </properties>
 
     <dependencies>

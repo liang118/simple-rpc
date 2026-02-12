@@ -81,7 +81,6 @@ public class NettyRpcServer {
             // 绑定端口，同步等待绑定成功
             // ChannelFuture f = sb.bind(host, PORT).sync(); // 这样回绑定到本地的首选IP地址，客户端通过localhost连接不上
             ChannelFuture f = sb.bind("0.0.0.0", PORT).sync();
-            System.out.println("服务正常启动");
             // 等待服务端监听端口关闭
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
