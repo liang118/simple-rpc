@@ -1,7 +1,12 @@
 package github.liang118.remoting.transport.netty.codec;
 
+import github.liang118.compress.Compress;
+import github.liang118.enums.CompressTypeEnum;
+import github.liang118.extension.ExtensionLoader;
 import github.liang118.remoting.constants.RpcConstants;
+import github.liang118.enums.SerializationTypeEnum;
 import github.liang118.remoting.dto.RpcMessage;
+import github.liang118.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -30,6 +35,9 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
 
     private static final AtomicInteger ATOMIC_INTEGER = new AtomicInteger(0);
 
+    /**
+     * 服务端发送数据前对业务数据进行编码
+     */
     @Override
     protected void encode(ChannelHandlerContext ctx, RpcMessage rpcMessage, ByteBuf out) throws Exception {
         try {
@@ -51,6 +59,36 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
             // 2. 构造body数据
             byte[] bodyBytes = null;
             int fullLength = RpcConstants.HEAD_LENGTH;
+            // 如果messageType不是心跳类型，fullLength = head + body
+            // 如果是心跳类型，不需要用到fullLength，body为空即可
+            if (messageType != RpcConstants.HEARTBEAT_REQUEST_TYPE
+                    && messageType != RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
+                // 序列化body数据
+                String codecName = SerializationTypeEnum.getName(codec);
+                log.info("codec name: [{}] ", codecName);
+                // 通一通过SPI机制获取序列化器以及压缩器
+                Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                        .getExtension(codecName);
+                bodyBytes = serializer.serialize(rpcMessage.getData());
+
+                // 压缩序列化后的数据
+                String compressName = CompressTypeEnum.getName(compress);
+                Compress compressImpl = ExtensionLoader.getExtensionLoader(Compress.class)
+                        .getExtension(compressName);
+                bodyBytes = compressImpl.compress(bodyBytes);
+                // 至此计算出fullLength
+                fullLength += bodyBytes.length;
+            }
+            if(bodyBytes != null) {
+                out.writeBytes(bodyBytes);
+            }
+
+            // 回填fullLength字段
+            int writeIndex = out.writerIndex();
+            out.writerIndex(writeIndex - fullLength + RpcConstants.MAGIC_NUMBER.length + 1);
+            out.writeInt(fullLength);
+            out.writerIndex(writeIndex);
+
         } catch (Exception e) {
             log.error("Encode request error!", e);
         }
