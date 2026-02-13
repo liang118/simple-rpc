@@ -5,6 +5,9 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 
+/**
+ * 这里的请求已经不是协议层了，是应用层了，封装了
+ */
 @Getter
 @Builder
 @ToString

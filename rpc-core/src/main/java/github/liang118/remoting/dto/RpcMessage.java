@@ -26,7 +26,7 @@ public class RpcMessage {
      */
     private byte compress;
     /**
-     * request id
+     * request id,这里是在编码的时候自动写入的
      */
     private int requestId;
     /**

@@ -42,10 +42,11 @@ public class RpcResponse<T> implements Serializable {
         return response;
     }
 
-    public static <U> RpcResponse<U> fail(RpcResponseCodeEnum rpcResponseCodeEnum) {
+    public static <U> RpcResponse<U> fail(String requestId, RpcResponseCodeEnum rpcResponseCodeEnum) {
         RpcResponse<U> response = new RpcResponse<>();
         response.setCode(rpcResponseCodeEnum.getCode());
         response.setMessage(rpcResponseCodeEnum.getMessage());
+        response.setRequestId(requestId);
         return response;
     }
 
