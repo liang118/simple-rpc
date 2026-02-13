@@ -1,10 +1,20 @@
 package github.liang118.remoting.transport.netty.codec;
 
+import github.liang118.compress.Compress;
+import github.liang118.enums.CompressTypeEnum;
+import github.liang118.enums.SerializationTypeEnum;
+import github.liang118.extension.ExtensionLoader;
 import github.liang118.remoting.constants.RpcConstants;
+import github.liang118.remoting.dto.RpcMessage;
+import github.liang118.remoting.dto.RpcRequest;
+import github.liang118.remoting.dto.RpcResponse;
+import github.liang118.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Arrays;
 
 /**
  * custom protocol decoder
@@ -39,9 +49,98 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
     }
 
 
+    /**
+     * 解码从channel获取的数据包
+     * LengthFieldBasedFrameDecoder 已经自动处理粘包和拆包问题了
+     */
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        return super.decode(ctx, in);
+        // 调用父类去解析，如果解析成功，decoded 是一个 ByteBuf 对象，表示一个完整的消息帧。
+        // 如果解析失败或数据不完整，decoded 为 null。
+        Object decoded = super.decode(ctx, in);
+        if(decoded instanceof ByteBuf) {
+            ByteBuf frame = (ByteBuf) decoded;
+            if (frame.readableBytes() >= RpcConstants.TOTAL_LENGTH) {
+                try {
+                    return decodeFrame(frame);
+                } catch (Exception e) {
+                    log.error("Decode frame error!", e);
+                    throw e;
+                } finally {
+                    frame.release();
+                }
+            }
+        }
+        return decoded;
+    }
+
+    private Object decodeFrame(ByteBuf in) {
+        // 按顺序读取byteBuf
+        checkMagicNumber(in);
+        checkVersion(in);
+        int fullLength = in.readInt();
+
+        // 协议头处理完毕，开始处理RpcMessage部分
+        byte messageType = in.readByte();
+        byte codecType = in.readByte();
+        byte compressType = in.readByte();
+        int requestId = in.readInt();
+        // RpcMessage信息提取完毕
+        RpcMessage rpcMessage = RpcMessage.builder()
+                .messageType(messageType)
+                .codec(codecType)
+                .compress(compressType)
+                .requestId(requestId)
+                .build();
+        // 如果是心跳包，没有body部分
+        if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
+            rpcMessage.setData(RpcConstants.PING);
+            return rpcMessage;
+        }
+        if (messageType == RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
+            rpcMessage.setData(RpcConstants.PONG);
+            return rpcMessage;
+        }
+        int bodyLength = fullLength - RpcConstants.HEAD_LENGTH;
+        if (bodyLength > 0) {
+            byte[] bs = new byte[bodyLength];
+            in.readBytes(bs);
+            // 1. 压缩数据
+            String compressName = CompressTypeEnum.getName(compressType);
+            Compress compress = ExtensionLoader.getExtensionLoader(Compress.class)
+                    .getExtension(compressName);
+            bs = compress.decompress(bs);
+            // 2. 序列化
+            String codecName = SerializationTypeEnum.getName(rpcMessage.getCodec());
+            Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                    .getExtension(codecName);
+            if (messageType == RpcConstants.REQUEST_TYPE) {
+                RpcRequest tmpValue = serializer.deserialize(bs, RpcRequest.class);
+                rpcMessage.setData(tmpValue);
+            } else {
+                RpcResponse tmpValue = serializer.deserialize(bs, RpcResponse.class);
+                rpcMessage.setData(tmpValue);
+            }
+        }
+        return rpcMessage;
+    }
+
+    private void checkMagicNumber(ByteBuf in) {
+        int len = RpcConstants.MAGIC_NUMBER.length;
+        byte[] tmp = new byte[len];
+        in.readBytes(tmp);
+        for (int i = 0; i < len; i++) {
+            if (tmp[i] != RpcConstants.MAGIC_NUMBER[i]) {
+                throw new IllegalArgumentException("Unknown magic code: " + Arrays.toString(tmp));
+            }
+        }
+    }
+
+    private void checkVersion(ByteBuf in) {
+        byte version = in.readByte();
+        if (version != RpcConstants.VERSION) {
+            throw new RuntimeException("version isn't compatible" + version);
+        }
     }
 
 }

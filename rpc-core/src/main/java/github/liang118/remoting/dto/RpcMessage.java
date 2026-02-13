@@ -2,6 +2,9 @@ package github.liang118.remoting.dto;
 
 import lombok.*;
 
+/**
+ * 这个对应协议里面的数据部分
+ */
 @Getter
 @Setter
 @Builder

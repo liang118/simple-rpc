@@ -58,6 +58,12 @@
             <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--hessian-->
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>hessian</artifactId>
+            <version>${hessian.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
