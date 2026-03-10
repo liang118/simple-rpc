@@ -64,6 +64,12 @@
             <artifactId>hessian</artifactId>
             <version>${hessian.version}</version>
         </dependency>
+        <!--zookeeper-->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator-version}</version>
+        </dependency>
     </dependencies>
 
 </project>

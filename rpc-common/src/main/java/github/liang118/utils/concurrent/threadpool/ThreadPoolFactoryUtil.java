@@ -1,4 +1,4 @@
-package github.liang118.utils;
+package github.liang118.utils.concurrent.threadpool;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 

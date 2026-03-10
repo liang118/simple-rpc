@@ -2,11 +2,14 @@ package github.liang118.remoting.transport.netty.server;
 
 import github.liang118.config.CustomShutdownHook;
 import github.liang118.config.RpcServiceConfig;
+import github.liang118.factory.SingletonFactory;
+import github.liang118.provider.ServiceProvider;
+import github.liang118.provider.impl.DefaultServiceProviderImpl;
 import github.liang118.remoting.transport.netty.codec.RpcMessageDecoder;
 import github.liang118.remoting.transport.netty.codec.RpcMessageEncoder;
 import github.liang118.remoting.transport.netty.handler.NettyRpcServerHandler;
 import github.liang118.utils.RuntimeUtil;
-import github.liang118.utils.ThreadPoolFactoryUtil;
+import github.liang118.utils.concurrent.threadpool.ThreadPoolFactoryUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -31,8 +34,14 @@ public class NettyRpcServer {
 
     public static final int PORT = 9999;
 
+    private final ServiceProvider serviceProvider = SingletonFactory.getInstance(DefaultServiceProviderImpl.class);
+
     public void registerService(RpcServiceConfig rpcServiceConfig) {
-        // TODO 服务启动的时候注册到注册中心
+        if (serviceProvider == null) {
+            log.error("service provider is not initialized");
+            return;
+        }
+        serviceProvider.publishService(rpcServiceConfig);
     }
 
     public static void main(String[] args) {
