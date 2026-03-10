@@ -28,11 +28,13 @@ import java.lang.reflect.Field;
 public class SpringBeanPostProcessor implements BeanPostProcessor {
 
     private final ServiceProvider serviceProvider;
+    // 这个除了使用zk，也可以灵活切换为其他注册中心实现
     private final RpcRequestTransport rpcClient;
 
     public SpringBeanPostProcessor() {
         this.serviceProvider = SingletonFactory.getInstance(DefaultServiceProviderImpl.class);
-        // 这里使用的是Dubbo的SPI机制，没有使用Java远程SPI，优势：缓存、可按需加载、支持按名获取
+        // 这里使用的是Dubbo的SPI机制，没有使用Java原生SPI
+        // 优点：缓存、可按需加载、支持按名获取
         this.rpcClient = ExtensionLoader.getExtensionLoader(RpcRequestTransport.class).getExtension(RpcRequestTransportEnum.NETTY.getName());
     }
 
