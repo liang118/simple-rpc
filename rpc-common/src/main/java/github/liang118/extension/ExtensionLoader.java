@@ -42,6 +42,7 @@ public class ExtensionLoader<T> {
 
     /**
      * 类缓存，根据名称进行缓存，从文件中进行读取的key，value
+     * 避免重复读取配置文件，提升性能
      * */
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
 
@@ -72,7 +73,6 @@ public class ExtensionLoader<T> {
         }
         // 通过单例模式创建每种type的唯一ExtensionLoader实例
         ExtensionLoader<S> extensionLoader = (ExtensionLoader<S>) EXTENSION_LOADERS.get(type);
-        // 这里使用的是双重检测机制，避免同一时刻大量创建
         if (extensionLoader == null) {
             EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader<S>(type));
             extensionLoader = (ExtensionLoader<S>) EXTENSION_LOADERS.get(type);
@@ -112,8 +112,6 @@ public class ExtensionLoader<T> {
         if (clazz == null) {
             throw new RuntimeException("扩展类不存在:  " + name);
         }
-        // 2. 这里还要创建单例，主要是考虑多个key银蛇用一个class的情况下
-        // 可能多个线程运行到这里，创建出同一个class的多个实例，违反了单例
         return (T) SingletonFactory.getInstance(clazz);
     }
 
@@ -127,7 +125,7 @@ public class ExtensionLoader<T> {
                 classes = cachedClasses.get();
                 if (classes == null) {
                     classes = new HashMap<>();
-                    // 3. 从文件夹中加载所有的扩展类
+                    // 3. 从指定文件夹中加载所有的扩展类
                     loadDirectory(classes);
                     cachedClasses.set(classes);
                 }

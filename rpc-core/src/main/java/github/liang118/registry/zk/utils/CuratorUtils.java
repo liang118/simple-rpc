@@ -7,9 +7,13 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +28,7 @@ public class CuratorUtils {
     private static final int BASE_SLEEP_TIME = 1000;
     private static final int MAX_RETRIES = 3;
     private static final Set<String> REGISTERED_PATH_SET = ConcurrentHashMap.newKeySet();
+    private static final Map<String, List<String>> SERVICE_ADDRESS_MAP = new ConcurrentHashMap<>();
 
     public CuratorUtils() {}
 
@@ -56,6 +61,22 @@ public class CuratorUtils {
         return zkClient;
     }
 
+    public static List<String> getChildrenNodes(CuratorFramework zkClient, String rpcServiceName) {
+        if (SERVICE_ADDRESS_MAP.containsKey(rpcServiceName)) {
+            return SERVICE_ADDRESS_MAP.get(rpcServiceName);
+        }
+        List<String> result = null;
+        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
+        try {
+            result = zkClient.getChildren().forPath(servicePath);
+            SERVICE_ADDRESS_MAP.put(rpcServiceName, result);
+            registerWatcher(rpcServiceName, zkClient);
+        } catch (Exception e) {
+            log.error("get children nodes for path [{}] fail", servicePath);
+        }
+        return result;
+    }
+
     /**
      * Create persistent nodes. Unlike temporary nodes, persistent nodes are not removed when the client disconnects
      *
@@ -74,6 +95,22 @@ public class CuratorUtils {
         } catch (Exception e) {
             log.error("create persistent node for path [{}] fail", path);
         }
+    }
+
+    /**
+     * Registers to listen for changes to the specified node
+     *
+     * @param rpcServiceName rpc service name eg:github.javaguide.HelloServicetest2version
+     */
+    private static void registerWatcher(String rpcServiceName, CuratorFramework zkClient) throws Exception {
+        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, servicePath, true);
+        PathChildrenCacheListener pathChildrenCacheListener = (curatorFramework, pathChildrenCacheEvent) -> {
+            List<String> serviceAddresses = curatorFramework.getChildren().forPath(servicePath);
+            SERVICE_ADDRESS_MAP.put(rpcServiceName, serviceAddresses);
+        };
+        pathChildrenCache.getListenable().addListener(pathChildrenCacheListener);
+        pathChildrenCache.start();
     }
 
 }

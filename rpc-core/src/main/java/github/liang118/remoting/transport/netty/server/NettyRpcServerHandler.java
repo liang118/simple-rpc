@@ -1,4 +1,4 @@
-package github.liang118.remoting.transport.netty.handler;
+package github.liang118.remoting.transport.netty.server;
 
 import github.liang118.enums.CompressTypeEnum;
 import github.liang118.enums.RpcResponseCodeEnum;

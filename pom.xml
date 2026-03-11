@@ -29,6 +29,7 @@
         <awaitility.version>4.2.0</awaitility.version>
         <hessian.version>4.0.65</hessian.version>
         <curator-version>4.2.0</curator-version>
+        <curator-version>4.2.0</curator-version>
     </properties>
 
     <dependencies>
