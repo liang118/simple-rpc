@@ -6,7 +6,7 @@ import github.liang118.enums.ServiceDiscoveryEnum;
 import github.liang118.extension.ExtensionLoader;
 import github.liang118.factory.SingletonFactory;
 import github.liang118.registry.ServiceDiscovery;
-import github.liang118.remoting.RpcRequestTransport;
+import github.liang118.remoting.transport.RpcRequestTransport;
 import github.liang118.remoting.constants.RpcConstants;
 import github.liang118.remoting.dto.RpcMessage;
 import github.liang118.remoting.dto.RpcRequest;

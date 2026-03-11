@@ -2,7 +2,9 @@ package github.liang118.provider.impl;
 
 import github.liang118.config.RpcServiceConfig;
 import github.liang118.enums.RpcErrorMessageEnum;
+import github.liang118.enums.ServiceRegistryEnum;
 import github.liang118.exception.RpcException;
+import github.liang118.extension.ExtensionLoader;
 import github.liang118.provider.ServiceProvider;
 import github.liang118.remoting.transport.netty.server.NettyRpcServer;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class DefaultServiceProviderImpl implements ServiceProvider {
@@ -25,10 +28,11 @@ public class DefaultServiceProviderImpl implements ServiceProvider {
     private final Set<String> registeredService;
     private final ServiceRegistry serviceRegistry;
 
-    public DefaultServiceProviderImpl(Map<String, Object> serviceMap, Set<String> registeredService, ServiceRegistry serviceRegistry) {
-        this.serviceMap = serviceMap;
-        this.registeredService = registeredService;
-        this.serviceRegistry = serviceRegistry;
+    public DefaultServiceProviderImpl() {
+        serviceMap = new ConcurrentHashMap<>();
+        registeredService = ConcurrentHashMap.newKeySet();
+        // 这里通过spi配置去获取具体要使用java spi加载哪种注册中心
+        serviceRegistry = ExtensionLoader.getExtensionLoader(ServiceRegistry.class).getExtension(ServiceRegistryEnum.ZK.getName());
     }
 
     @Override

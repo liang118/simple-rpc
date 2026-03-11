@@ -9,7 +9,7 @@ import github.liang118.factory.SingletonFactory;
 import github.liang118.provider.ServiceProvider;
 import github.liang118.provider.impl.DefaultServiceProviderImpl;
 import github.liang118.proxy.RpcClientProxy;
-import github.liang118.remoting.RpcRequestTransport;
+import github.liang118.remoting.transport.RpcRequestTransport;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;

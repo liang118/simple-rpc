@@ -4,7 +4,7 @@ import github.liang118.config.RpcServiceConfig;
 import github.liang118.enums.RpcErrorMessageEnum;
 import github.liang118.enums.RpcResponseCodeEnum;
 import github.liang118.exception.RpcException;
-import github.liang118.remoting.RpcRequestTransport;
+import github.liang118.remoting.transport.RpcRequestTransport;
 import github.liang118.remoting.dto.RpcRequest;
 import github.liang118.remoting.dto.RpcResponse;
 import lombok.SneakyThrows;

@@ -6,7 +6,7 @@ import github.liang118.registry.zk.utils.CuratorUtils;
 
 import java.net.InetSocketAddress;
 
-public class ServiceRegistryImpl implements ServiceRegistry {
+public class ZkServiceRegistryImpl implements ServiceRegistry {
 
     @Override
     public void registerService(String rpcServiceName, InetSocketAddress inetSocketAddress) {

@@ -18,6 +18,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit;
  * 3. 关闭的时候，基础已注册的服务 todo 如果移除的时候失败了，如何保证服务会被下线？考虑新增心跳机制
  */
 @Slf4j
+@Component
 public class NettyRpcServer {
 
     public static final int PORT = 9999;

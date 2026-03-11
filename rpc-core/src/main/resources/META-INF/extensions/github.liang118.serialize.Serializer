@@ -1,0 +1,3 @@
+kyro=github.liang118.serialize.kyro.KryoSerializer
+protostuff=github.liang118.serialize.protostuff.ProtostuffSerializer
+hessian=github.liang118.serialize.hessian.HessianSerializer

@@ -1,0 +1,1 @@
+netty=github.liang118.remoting.transport.netty.client.NettyRpcClient

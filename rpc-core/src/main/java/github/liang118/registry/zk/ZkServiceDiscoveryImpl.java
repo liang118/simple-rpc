@@ -4,7 +4,7 @@ import github.liang118.enums.LoadBalanceEnum;
 import github.liang118.enums.RpcErrorMessageEnum;
 import github.liang118.exception.RpcException;
 import github.liang118.extension.ExtensionLoader;
-import github.liang118.loadbalancer.LoadBalance;
+import github.liang118.loadbalance.LoadBalance;
 import github.liang118.registry.ServiceDiscovery;
 import github.liang118.registry.zk.utils.CuratorUtils;
 import github.liang118.remoting.dto.RpcRequest;
@@ -26,7 +26,7 @@ public class ZkServiceDiscoveryImpl implements ServiceDiscovery {
     private final LoadBalance loadBalance;
 
     public ZkServiceDiscoveryImpl() {
-        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension(LoadBalanceEnum.LOADBALANCENEW.getName());
+        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension(LoadBalanceEnum.LOADBALANCE.getName());
     }
 
     @Override

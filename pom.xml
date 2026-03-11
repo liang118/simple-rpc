@@ -12,6 +12,8 @@
     <modules>
         <module>rpc-common</module>
         <module>rpc-core</module>
+        <module>server-example</module>
+        <module>client-example</module>
     </modules>
 
     <properties>
@@ -49,6 +51,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
