@@ -6,6 +6,9 @@ import github.liang118.registry.zk.utils.CuratorUtils;
 
 import java.net.InetSocketAddress;
 
+/**
+ * 给服务端提供的注册中心的注册
+ */
 public class ZkServiceRegistryImpl implements ServiceRegistry {
 
     @Override

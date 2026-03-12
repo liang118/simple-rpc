@@ -57,6 +57,12 @@
             <artifactId>hessian</artifactId>
             <version>${hessian.version}</version>
         </dependency>
+        <!--kyro-->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>${kryo.version}</version>
+        </dependency>
         <!--zookeeper-->
         <dependency>
             <groupId>org.apache.curator</groupId>

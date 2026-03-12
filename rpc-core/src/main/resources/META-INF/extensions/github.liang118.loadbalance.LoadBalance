@@ -1,1 +1,2 @@
 loadBalance=github.liang118.loadbalance.loadbalancer.ConsistentHashLoadBalance
+randLoadBalance=github.javaguide.loadbalance.loadbalancer.RandomLoadBalance

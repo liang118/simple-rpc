@@ -16,10 +16,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
+ * 给客户端使用的注册中心的服务发现
  * service discovery based on zookeeper
- *
- * @author shuang.kou
- * @createTime 2020年06月01日 15:16:00
  */
 @Slf4j
 public class ZkServiceDiscoveryImpl implements ServiceDiscovery {

@@ -2,12 +2,12 @@ package github.liang118.config;
 
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class RpcServiceConfig {
     /**
      * service version
