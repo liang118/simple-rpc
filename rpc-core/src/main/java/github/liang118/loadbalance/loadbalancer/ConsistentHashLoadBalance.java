@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
+    // 保存服务 - 一致性hash选择器的 map
     private final ConcurrentHashMap<String, ConsistentHashSelector> selectors = new ConcurrentHashMap<>();
 
     @Override
@@ -23,8 +24,9 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         // build rpc service name by rpcRequest
         String rpcServiceName = rpcRequest.getRpcServiceName();
         ConsistentHashSelector selector = selectors.get(rpcServiceName);
-        // check for updates
+        // 校验一下服务地址有没有发生变化，没有的话就没必要重新计算了
         if (selector == null || selector.identityHashCode != identityHashCode) {
+            // 对于每一个服务，设置一个一致性hash选择器
             selectors.put(rpcServiceName, new ConsistentHashSelector(serviceAddresses, 160, identityHashCode));
             selector = selectors.get(rpcServiceName);
         }
@@ -32,8 +34,10 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
     }
 
     static class ConsistentHashSelector {
+        // 所有的虚拟结点组织成有序map
         private final TreeMap<Long, String> virtualInvokers;
 
+        // 这个用来计算当前的一致性hash选择器是基于哪个服务列表计算来的，如果服务列表发生了变化，整个结构需要重构
         private final int identityHashCode;
 
         ConsistentHashSelector(List<String> invokers, int replicaNumber, int identityHashCode) {
